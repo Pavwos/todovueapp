@@ -1,5 +1,12 @@
-# Vue 3 + Vite
+# To-do App (Vue + Node.js)
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+App fullstack simples de tarefas com Vue no frontend e Node.js no backend.
+Salva em um `db.json`, sem banco de dados por enquanto.
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+## Como rodar
+
+1. `cd backend && node server.js`
+2. `cd frontend && npm run dev`
+
+Frontend: http://localhost:5173  
+Backend: http://localhost:3000
