@@ -20,7 +20,7 @@ import TaskList from './components/TaskList.vue';
   
   const tasks = ref([]);
   const isLoading = ref(true);
-  const filter = ref('all'); // 'all', 'active', or 'completed'
+  const filter = ref('all');
   
   const filteredTasks = computed(() => {
     if (filter.value === 'active') {
