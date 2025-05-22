@@ -25,7 +25,7 @@
 
   async function addTask(taskText) {
     try {
-      const res = await fetch("http://localhost:3000/tasks", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/tasks`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -41,7 +41,7 @@
   }
   async function deleteTask(taskId) {
     try {
-      const res = await fetch(`http://localhost:3000/tasks/${taskId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/tasks/${taskId}`, {
         method: "DELETE"
       });
       if (!res.ok) throw new Error('Failed to delete task');
@@ -53,7 +53,7 @@
   
   async function updateTaskStatus(taskId, done) {
     try {
-      const res = await fetch(`http://localhost:3000/tasks/${taskId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/tasks${taskId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json"
