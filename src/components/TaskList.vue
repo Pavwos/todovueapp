@@ -7,7 +7,8 @@
                 :key="task.id" 
                 :task="task" 
                 @remove="handleRemove"
-                @update-status="handleUpdateStatus" 
+                @update-status="handleUpdateStatus"
+                @edit="handleEdit" 
             />
         </ul>
     </div>
@@ -22,12 +23,15 @@
             default: () => []
         }
     })
-    const emit = defineEmits(['delete-task', 'update-status'])
+    const emit = defineEmits(['delete-task', 'update-status', 'edit-task'])
     function handleRemove(taskId) {
         emit('delete-task', taskId)
     }
     function handleUpdateStatus(taskId, done) {
         emit('update-status', taskId, done)
+    }
+    function handleEdit(taskId, newText) {
+        emit('edit-task', taskId, newText)
     }
 </script>
 <style scoped>
