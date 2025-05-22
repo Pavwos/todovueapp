@@ -1,8 +1,9 @@
 <template>
-  <div>
+  <div class="app-container">
     <h1>To-do App ✍️🔥</h1>
-    <TaskForm @add-task="addTask" />
-    <TaskList :tasks="tasks" @delete-task="deleteTask" @update-status="updateTaskStatus" />
+    <TaskForm @add-task="addTask" :loading="isLoading" />
+    <LoadingSpinner v-if="isLoading" />
+    <TaskList v-else :tasks="tasks" @delete-task="deleteTask" @update-status="updateTaskStatus" />
   </div>
 </template>
 
@@ -10,9 +11,13 @@
   import { ref, onMounted } from 'vue';
   import TaskForm from './components/TaskForm.vue'
   import TaskList from './components/TaskList.vue'
+  import LoadingSpinner from './components/LoadingSpinner.vue'
+  
   const tasks = ref([]);
+  const isLoading = ref(true);
 
   onMounted(async () => {
+    isLoading.value = true;
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/tasks`)
       if (!res.ok) throw new Error('Failed to fetch tasks');
@@ -20,6 +25,8 @@
     } catch (error) {
       console.error('Error fetching tasks:', error);
       tasks.value = []
+    } finally {
+      isLoading.value = false;
     }
   })
 
@@ -52,8 +59,14 @@
   }
   
   async function updateTaskStatus(taskId, done) {
+    // Optimistic update
+    const taskIndex = tasks.value.findIndex(task => task.id === taskId);
+    if (taskIndex !== -1) {
+      tasks.value[taskIndex].done = done;
+    }
+    
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/tasks${taskId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/tasks/${taskId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json"
@@ -62,15 +75,32 @@
       });
       if (!res.ok) throw new Error('Failed to update task');
       
-      const taskIndex = tasks.value.findIndex(task => task.id === taskId);
+      // Update with server response if needed
+      const updatedTask = await res.json();
       if (taskIndex !== -1) {
-        tasks.value[taskIndex].done = done;
+        tasks.value[taskIndex].done = updatedTask.done;
       }
     } catch (error) {
       console.error('Error updating task:', error);
+      // Revert optimistic update on error
+      if (taskIndex !== -1) {
+        tasks.value[taskIndex].done = !done;
+      }
     }
   }
 </script>
 
 <style scoped>
+.app-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
 </style>

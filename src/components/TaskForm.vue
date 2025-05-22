@@ -1,10 +1,18 @@
 <script setup>
     import { ref } from 'vue';
 
+    const props = defineProps({
+        loading: {
+            type: Boolean,
+            default: false
+        }
+    });
+
     const taskText = ref('');
     const emit = defineEmits(['add-task']);
+    
     function submitTask() {
-        if (taskText.value.trim()) {
+        if (taskText.value.trim() && !props.loading) {
             emit('add-task', taskText.value.trim());
             taskText.value = '';
         }
@@ -13,8 +21,10 @@
 
 <template>
     <form @submit.prevent="submitTask">
-        <input v-model="taskText" placeholder="New task" />
-        <button type="submit">Add</button>
+        <input v-model="taskText" placeholder="New task" :disabled="loading" />
+        <button type="submit" :disabled="loading || !taskText.trim()">
+            {{ loading ? 'Adding...' : 'Add' }}
+        </button>
     </form>
 </template>
 
