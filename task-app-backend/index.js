@@ -7,7 +7,8 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
-const DB_PATH = "./db.json";
+const path = require("path");
+const DB_PATH = path.join(__dirname, "db.json");
 
 function loadTasks() {
   try {
@@ -19,7 +20,11 @@ function loadTasks() {
 }
 
 function saveTasks(tasks) {
-  fs.writeFileSync(DB_PATH, JSON.stringify(tasks, null, 2));
+  try {
+    fs.writeFileSync(DB_PATH, JSON.stringify(tasks, null, 2));
+  } catch (error) {
+    console.error("Error saving tasks:", error);
+  }
 }
 
 app.get("/tasks", (req, res) => {
@@ -28,10 +33,18 @@ app.get("/tasks", (req, res) => {
 });
 
 app.post("/tasks", (req, res) => {
+  if (
+    !req.body.text ||
+    typeof req.body.text !== "string" ||
+    !req.body.text.trim()
+  ) {
+    return res.status(400).json({ error: "Task text is required" });
+  }
+
   const tasks = loadTasks();
   const newTask = {
     id: Date.now(),
-    text: req.body.text,
+    text: req.body.text.trim(),
     done: false,
   };
   tasks.push(newTask);
@@ -42,7 +55,13 @@ app.post("/tasks", (req, res) => {
 app.delete("/tasks/:id", (req, res) => {
   let tasks = loadTasks();
   const taskId = Number(req.params.id);
+  const originalLength = tasks.length;
   tasks = tasks.filter((task) => task.id !== taskId);
+
+  if (tasks.length === originalLength) {
+    return res.status(404).json({ error: "Task not found" });
+  }
+
   saveTasks(tasks);
   res.status(204).send();
 });
@@ -54,7 +73,20 @@ app.patch("/tasks/:id", (req, res) => {
   const taskIndex = tasks.findIndex((task) => task.id === taskId);
 
   if (taskIndex !== -1) {
-    tasks[taskIndex] = { ...tasks[taskIndex], ...req.body };
+    // Only allow updating specific fields
+    const allowedUpdates = {};
+    if ("done" in req.body && typeof req.body.done === "boolean") {
+      allowedUpdates.done = req.body.done;
+    }
+    if (
+      "text" in req.body &&
+      typeof req.body.text === "string" &&
+      req.body.text.trim()
+    ) {
+      allowedUpdates.text = req.body.text.trim();
+    }
+
+    tasks[taskIndex] = { ...tasks[taskIndex], ...allowedUpdates };
     saveTasks(tasks);
     res.json(tasks[taskIndex]);
   } else {
