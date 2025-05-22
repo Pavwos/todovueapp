@@ -8,10 +8,10 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue';
-  import TaskForm from './components/TaskForm.vue'
-  import TaskList from './components/TaskList.vue'
-  import LoadingSpinner from './components/LoadingSpinner.vue'
+  import { onMounted, ref } from 'vue';
+import LoadingSpinner from './components/LoadingSpinner.vue';
+import TaskForm from './components/TaskForm.vue';
+import TaskList from './components/TaskList.vue';
   
   const tasks = ref([]);
   const isLoading = ref(true);
@@ -59,7 +59,6 @@
   }
   
   async function updateTaskStatus(taskId, done) {
-    // Optimistic update
     const taskIndex = tasks.value.findIndex(task => task.id === taskId);
     if (taskIndex !== -1) {
       tasks.value[taskIndex].done = done;
@@ -75,14 +74,12 @@
       });
       if (!res.ok) throw new Error('Failed to update task');
       
-      // Update with server response if needed
       const updatedTask = await res.json();
       if (taskIndex !== -1) {
         tasks.value[taskIndex].done = updatedTask.done;
       }
     } catch (error) {
       console.error('Error updating task:', error);
-      // Revert optimistic update on error
       if (taskIndex !== -1) {
         tasks.value[taskIndex].done = !done;
       }

@@ -1,7 +1,6 @@
 # To-do App (Vue + Node.js)
 
 App fullstack simples de tarefas com Vue no frontend e Node.js no backend.
-Salva em um `db.json`, sem banco de dados por enquanto.
 
 ## Como rodar
 
